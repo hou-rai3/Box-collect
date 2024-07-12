@@ -27,49 +27,40 @@ int main()
     button_stert.mode(PullUp);
     BufferedSerial pc(USBTX, USBRX, 115200);
     auto pre = HighResClock::now();
-    auto pre_1 = pre;
 
     while (1)
     {
         auto now = HighResClock::now();
-        auto now_1 = HighResClock::now();
+
         bool sw_stop = button_stop.read();
-        bool sw_stert = button_stert.read();
-        printf("Stert\n");
-        speed = 8000;
+        if (!sw_stop)
+        {
+            printf("Stert\n");
+            speed = 8000;
 
-        int16_t signed_speed = static_cast<int16_t>(-speed);
-        DATA[0] = (signed_speed >> 8) & 0xFF; // 上位バイト
-        DATA[1] = signed_speed & 0xFF;        // 下位バイト
-        signed_speed = static_cast<int16_t>(speed);
-        DATA[2] = (signed_speed >> 8) & 0xFF; // 上位バイト
-        DATA[3] = signed_speed & 0xFF;        // 下位バイト
+            int16_t signed_speed = static_cast<int16_t>(-speed);
+            DATA[0] = (signed_speed >> 8) & 0xFF; // 上位バイト
+            DATA[1] = signed_speed & 0xFF;        // 下位バイト
+            signed_speed = static_cast<int16_t>(speed);
+            DATA[2] = (signed_speed >> 8) & 0xFF; // 上位バイト
+            DATA[3] = signed_speed & 0xFF;        // 下位バイト
+        }
+        else
+        {
+            speed = 0;
+            int16_t signed_speed = static_cast<int16_t>(-speed);
+            DATA[0] = (signed_speed >> 8) & 0xFF; // 上位バイト
+            DATA[1] = signed_speed & 0xFF;        // 下位バイト
+            signed_speed = static_cast<int16_t>(speed);
+            DATA[2] = (signed_speed >> 8) & 0xFF; // 上位バイト
+            DATA[3] = signed_speed & 0xFF;        // 下位バイト
+        }
 
-        pre = now;
-        can.reset(); // CANコントローラをリセット
-        // if (sw_stert == 0)
-        // {
-
-        // }
-        // else
-        // { // 何もしない
-        // }
-        // if (sw_stop == 0)
-        // {
-        //     stop_motor(0);
-        // }
-        // else
-        // { // 何もしない
-        // }
-
-        if (now_1 - pre_1 > 30ms)
+        if (now - pre > 30ms)
         {
             CANMessage msg(DJI_ID, DATA, 8);
             if (can.write(msg))
             {
-                can.reset();
-                // CANコントローラをリセット
-                //  printf("OK\n");
             }
             else
             {
@@ -82,7 +73,7 @@ int main()
                     can.reset();
                 }
             }
-            pre_1 = now_1;
+            pre = now;
         }
     }
 }

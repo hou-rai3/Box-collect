@@ -6,6 +6,7 @@ InterruptIn button_stert(PC_9);
 CAN can(PA_11, PA_12, (int)1e6);
 CANMessage msg;
 uint8_t DATA[8] = {0};
+uint8_t DATA_1[8] = {0};
 int DJI_ID = 0x1FF;
 int16_t speed = 0;
 
@@ -38,14 +39,17 @@ int main()
             printf("Stert\n");
             speed = 16000;
 
-            int16_t signed_speed = static_cast<int16_t>(speed);
+            int16_t signed_speed = static_cast<int16_t>(-speed);
             DATA[2] = (signed_speed >> 8) & 0xFF;
             DATA[3] = signed_speed & 0xFF;
-            DATA[6] = (signed_speed >> 8) & 0xFF;
-            DATA[7] = signed_speed & 0xFF;
-            signed_speed = static_cast<int16_t>(-speed);
+
+            signed_speed = static_cast<int16_t>(speed);
             DATA[4] = (signed_speed >> 8) & 0xFF;
             DATA[5] = signed_speed & 0xFF;
+
+            signed_speed = static_cast<int16_t>(speed);
+            DATA_1[6] = (signed_speed >> 8) & 0xFF;
+            DATA_1[7] = signed_speed & 0xFF;
         }
         else
         {
@@ -53,17 +57,21 @@ int main()
             int16_t signed_speed = static_cast<int16_t>(speed);
             DATA[2] = (signed_speed >> 8) & 0xFF;
             DATA[3] = signed_speed & 0xFF;
-            DATA[6] = (signed_speed >> 8) & 0xFF;
-            DATA[7] = signed_speed & 0xFF;
+
             signed_speed = static_cast<int16_t>(-speed);
             DATA[4] = (signed_speed >> 8) & 0xFF;
             DATA[5] = signed_speed & 0xFF;
+
+            signed_speed = static_cast<int16_t>(speed);
+            DATA_1[6] = (signed_speed >> 8) & 0xFF;
+            DATA_1[7] = signed_speed & 0xFF;
         }
 
         if (now - pre > 30ms)
         {
             CANMessage msg(DJI_ID, DATA, 8);
-            if (can.write(msg))
+            CANMessage msg1(0x200, DATA_1, 8);
+            if (can.write(msg) && can.write(msg1))
             {
             }
             else

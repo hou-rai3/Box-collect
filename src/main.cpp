@@ -43,7 +43,7 @@ int main()
             DATA[2] = (signed_speed >> 8) & 0xFF;
             DATA[3] = signed_speed & 0xFF;
 
-            signed_speed = static_cast<int16_t>(speed);
+            signed_speed = static_cast<int16_t>(-speed);
             DATA[4] = (signed_speed >> 8) & 0xFF;
             DATA[5] = signed_speed & 0xFF;
 

@@ -23,7 +23,12 @@ void stop_motor(int zero)
 }
 void motor_move(int speed)
 {
-  int16_t signed_speed = static_cast<int16_t>(speed);
+  int16_t signed_speed = static_cast<int16_t>(-speed);
+
+  DATA[0] = (signed_speed >> 8) & 0xFF;
+  DATA[1] = signed_speed & 0xFF;
+
+  signed_speed = static_cast<int16_t>(speed);
   DATA[2] = (signed_speed >> 8) & 0xFF;
   DATA[3] = signed_speed & 0xFF;
 
@@ -49,7 +54,7 @@ int main()
 
     if (!sw_stop)
     {
-      motor_move(10000);
+      motor_move(16000);
     }
     else
     {
